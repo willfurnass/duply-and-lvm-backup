@@ -1,0 +1,32 @@
+- /mnt/rootlv1_snap1/**/.vagrant
+- /mnt/rootlv1_snap1/*/.vagrant.d
+- /mnt/rootlv1_snap1/root/.cache
++ /mnt/rootlv1_snap1/root
++ /mnt/rootlv1_snap1/etc
++ /mnt/rootlv1_snap1/home/*/backups
+- /mnt/rootlv1_snap1/home/*/.cabal
+- /mnt/rootlv1_snap1/home/*/.cache
+- /mnt/rootlv1_snap1/home/*/.ccache
+- /mnt/rootlv1_snap1/home/*/.conscript
+- /mnt/rootlv1_snap1/home/*/Downloads 
+- /mnt/rootlv1_snap1/home/*/.ivy2
+- /mnt/rootlv1_snap1/home/*/.lein
+- /mnt/rootlv1_snap1/home/*/miniconda
+- /mnt/rootlv1_snap1/home/*/miniconda3
+- /mnt/rootlv1_snap1/home/*/Music/CDs 
+- /mnt/rootlv1_snap1/home/*/Music/Stolen 
+- /mnt/rootlv1_snap1/home/*/.npm
+- /mnt/rootlv1_snap1/home/*/R
+- /mnt/rootlv1_snap1/home/*/.rvm
+- /mnt/rootlv1_snap1/home/*/.sbt
+- /mnt/rootlv1_snap1/home/*/.steam
+- /mnt/rootlv1_snap1/home/*/temp
+- /mnt/rootlv1_snap1/home/*/tmp
+- /mnt/rootlv1_snap1/home/*/VirtualBox VMs
++ /mnt/rootlv1_snap1/home/*/VirtualBox VMs/prune
+- /mnt/rootlv1_snap1/home/*/.virtualenvs
+- /mnt/rootlv1_snap1/home/*/.wine/drive_c/ThiefG
+- /mnt/rootlv1_snap1/home/*/.wine/drive_c/windows
+- /mnt/rootlv1_snap1/home/*/.xapiandb
++ /mnt/rootlv1_snap1/home
+- **

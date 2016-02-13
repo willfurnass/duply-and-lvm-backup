@@ -1,0 +1,24 @@
+#!/bin/bash
+
+source "$(dirname $0)/conf"
+
+sync
+
+umount "$BACKUP_TARGET_MNT_PNT"
+if [ $? -ne 0 ]; then
+    echo "Could not unmount backup disk with UUID=$DEV_ID from $TARGET_PATH"
+    exit -1
+fi
+
+for SS in ${HOME_LV_SNAPSHOT} ${ROOT_LV_SNAPSHOT}; do
+    umount "/dev/mapper/${VOL_GRP}-${SS}"
+    if [ $? -ne 0 ]; then
+        echo "Error: Could not unmount snapshot volume ${trgt}"
+        exit -1
+    fi
+    lvremove -f "${VOL_GRP}/${SS}"
+    if [ $? -ne 0 ]; then
+        echo "Error: Could not delete snapshot volume ${SS}"
+        exit -1
+    fi
+done

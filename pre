@@ -1,0 +1,34 @@
+#!/bin/bash
+
+source "$(dirname $0)/conf"
+
+if ! /usr/bin/on_ac_power; then
+    echo "Won't start backup until on AC power"
+    exit -1
+fi
+
+# Ensure we have a mounted backup target device _before_ preparing snapshot volumes to backup
+# as this step is more likely to fail
+[[ -d $BACKUP_TARGET_MNT_PNT ]] || mkdir $BACKUP_TARGET_MNT_PNT
+mount UUID="$BACKUP_TARGET_UUID" "$BACKUP_TARGET_MNT_PNT"
+if [ $? -ne 0 ]; then
+    echo "Error: Could not mount backup disk with UUID=$BACKUP_TARGET_UUID on $BACKUP_TARGET_MNT_PNT; exiting"
+    exit -1
+fi
+
+
+# Create and mount snapshots of root and home filesystems
+for SS in "${ROOT_LV_SNAPSHOT} ${HOME_LV_SNAPSHOT}"; do
+    if lvs | grep -q "${SS}"; then
+        echo "Error: snapshot called ${SS} already exists; exiting"
+        exit -1
+    fi
+done
+
+lvcreate --size 4G --permission r --snapshot --name ${ROOT_LV_SNAPSHOT} ${VOL_GRP}/${ROOT_LV}
+# NB logical volumes need to be >~2.5GB to accommodate the creation of
+# duplicity manifest and signature files
+[[ -d $ROOT_SNAPSHOT_MNT_PNT ]] || mkdir $ROOT_SNAPSHOT_MNT_PNT
+mount /dev/mapper/${VOL_GRP}-${ROOT_LV_SNAPSHOT} $ROOT_SNAPSHOT_MNT_PNT
+lvcreate --size 4G --permission r --snapshot --name ${HOME_LV_SNAPSHOT} ${VOL_GRP}/${HOME_LV}
+mount /dev/mapper/${VOL_GRP}-${HOME_LV_SNAPSHOT} $ROOT_SNAPSHOT_MNT_PNT/home

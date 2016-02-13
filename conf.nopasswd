@@ -1,0 +1,120 @@
+# The logical volumes that are to be snapshotted by the pre script
+VOL_GRP='figvg1'
+ROOT_LV="rootlv1"
+HOME_LV="homelv1"
+
+# The snapshots that are to be backed up
+ROOT_LV_SNAPSHOT="${ROOT_LV}_snap1"
+HOME_LV_SNAPSHOT="${HOME_LV}_snap1"
+
+# Where the root snapshot is to be mounted by the pre script
+# the script mounts the home filesystem snapshot on 'home' under this dir
+ROOT_SNAPSHOT_MNT_PNT="/mnt/${ROOT_LV_SNAPSHOT}"
+
+# The backup target and mount point
+BACKUP_TARGET_UUID='97fa8997-673d-4e89-8726-e691e627fa79'
+BACKUP_TARGET_MNT_PNT='/mnt/icybox1'
+
+# Rest of this file is duply/duplicity config options
+
+# gpg symmetric encryption passphrase
+GPG_PW='<<scrubbed>>'
+# Also see "A NOTE ON SYMMETRIC ENCRYPTION AND SIGNING" in duplicity manpage
+# notes on en/decryption
+
+# gpg options passed from duplicity to gpg process (default='')
+GPG_OPTS='--personal-cipher-preferences AES256'
+
+# disable preliminary tests with the following setting
+#GPG_TEST='disabled'
+
+# credentials & server address of the backup target (URL-Format)
+# syntax is
+#   scheme://[user:password@]host[:port]/[/]path
+# probably one out of
+#   # for cloudfiles backend user id is CLOUDFILES_USERNAME, password is 
+#   # CLOUDFILES_APIKEY, you might need to set CLOUDFILES_AUTHURL manually
+#   cf+http://[user:password@]container_name
+#   file://[relative|/absolute]/local/path
+#   ftp[s]://user[:password]@other.host[:port]/some_dir
+#   hsi://user[:password]@other.host/some_dir
+#   hsi://user[:password]@other.host/some_dir
+#   imap[s]://user[:password]@host.com[/from_address_prefix]
+#   rsync://user[:password]@host.com[:port]::[/]module/some_dir
+#   # rsync over ssh (only keyauth)
+#   rsync://user@host.com[:port]/[relative|/absolute]_path
+#   # for the s3 user/password are AWS_ACCESS_KEY_ID/AWS_SECRET_ACCESS_KEY
+#   s3://[user:password@]host/bucket_name[/prefix]
+#   s3+http://[user:password@]bucket_name[/prefix]
+#   # scp and sftp are aliases for the ssh backend
+#   ssh://user[:password]@other.host[:port]/[/]some_dir
+#   tahoe://alias/directory
+#   # for Ubuntu One set TARGET_PASS to oauth access token
+#   #   "consumer_key:consumer_secret:token:token_secret"
+#   # if non given credentials will be prompted for and one will be created
+#   u1://host_is_ignored/volume_path
+#   u1+http:///volume_path
+#   webdav[s]://user[:password]@other.host/some_dir
+# ATTENTION: characters other than A-Za-z0-9.-_.~ in user,password,path have 
+#            to be replaced by their url encoded pendants, see
+#            http://en.wikipedia.org/wiki/Url_encoding 
+#            if you define the credentials as TARGET_USER, TARGET_PASS below 
+#            duply will try to url_encode them for you if need arises
+#TARGET='scheme://user[:password]@host[:port]/[/]path'
+TARGET="file://${BACKUP_TARGET_MNT_PNT}"
+# optionally the username/password can be defined as extra variables
+# setting them here _and_ in TARGET results in an error
+#TARGET_USER='_backend_username_'
+#TARGET_PASS='_backend_password_'
+
+# base directory to backup
+SOURCE="${ROOT_SNAPSHOT_MNT_PNT}"
+
+# exclude folders containing exclusion file (since duplicity 0.5.14)
+# Uncomment the following two lines to enable this setting.
+#FILENAME='.duplicity-ignore'
+#DUPL_PARAMS="$DUPL_PARAMS --exclude-if-present '$FILENAME'"
+
+# Time frame for old backups to keep, Used for the "purge" command.  
+# see duplicity man page, chapter TIME_FORMATS)
+MAX_AGE=6M
+
+# Number of full backups to keep. Used for the "purge-full" command. 
+# See duplicity man page, action "remove-all-but-n-full".
+MAX_FULL_BACKUPS=2
+
+# activates duplicity --full-if-older-than option (since duplicity v0.4.4.RC3) 
+# forces a full backup if last full backup reaches a specified age, for the 
+# format of MAX_FULLBKP_AGE see duplicity man page, chapter TIME_FORMATS
+# Uncomment the following two lines to enable this setting.
+MAX_FULLBKP_AGE=2M
+DUPL_PARAMS="$DUPL_PARAMS --full-if-older-than $MAX_FULLBKP_AGE " 
+
+# sets duplicity --volsize option (available since v0.4.3.RC7)
+# set the size of backup chunks to VOLSIZE MB instead of the default 25MB.
+# VOLSIZE must be number of MB's to set the volume size to.
+# Uncomment the following two lines to enable this setting. 
+#VOLSIZE=50
+#DUPL_PARAMS="$DUPL_PARAMS --volsize $VOLSIZE "
+
+# verbosity of output (error 0, warning 1-2, notice 3-4, info 5-8, debug 9)
+# default is 4, if not set
+#VERBOSITY=4
+
+# temporary file space. at least the size of the biggest file in backup
+# for a successful restoration process. (default is '/tmp', if not set)
+#TEMP_DIR=/tmp
+
+# Modifies archive-dir option (since 0.6.0) Defines a folder that holds 
+# unencrypted meta data of the backup, enabling new incrementals without the 
+# need to decrypt backend metadata first. If empty or deleted somehow, the 
+# private key and it's password are needed.
+# NOTE: This is confidential data. Put it somewhere safe. It can grow quite 
+#       big over time so you might want to put it not in the home dir.
+# default '~/.cache/duplicity/duply_<profile>/'
+# if set  '${ARCH_DIR}/<profile>'
+#ARCH_DIR=/some/space/safe/.duply-cache
+
+# more duplicity command line options can be added in the following way
+# don't forget to leave a separating space char at the end
+DUPL_PARAMS="$DUPL_PARAMS --asynchronous-upload " 
